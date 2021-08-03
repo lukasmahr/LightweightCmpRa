@@ -26,7 +26,7 @@ import org.junit.Test;
 import com.siemens.pki.lightweightcmpra.protection.PasswordBasedMacProtection;
 import com.siemens.pki.lightweightcmpra.protection.ProtectionProvider;
 
-public class TestIrWithMacProtection extends OnlineEnrollmentHttpTestcaseBase {
+public class TestIrWithPasswordBasedMacProtection extends OnlineEnrollmentHttpTestcaseBase {
 
     /**
      * 5.1.4. Request a certificate from a PKI with MAC protection
@@ -34,11 +34,11 @@ public class TestIrWithMacProtection extends OnlineEnrollmentHttpTestcaseBase {
      * @throws Exception
      */
     @Test
-    public void testIrWithMacProtection() throws Exception {
+    public void testIrWithPasswordBasedMacProtection() throws Exception {
         final ProtectionProvider macBasedProvider =
-                new PasswordBasedMacProtection("myPresharedSecret",
-                        "keyIdentification", 1234,
-                        new byte[] {6, 5, 4, 3, 2, 1},
+                new PasswordBasedMacProtection("keyIdentification",
+                        "myPresharedSecret", new byte[] {6, 5, 4, 3, 2, 1},
+                        1234,
                         PasswordBasedMacProtection.DEFAULT_OWF_OID,
                         PasswordBasedMacProtection.DEFAULT_MAC_OID);
         final Function<PKIMessage, PKIMessage> cmpClient = TestUtils
