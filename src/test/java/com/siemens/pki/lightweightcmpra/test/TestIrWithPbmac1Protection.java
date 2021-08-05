@@ -25,6 +25,7 @@ import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.DERNull;
 import org.bouncycastle.asn1.cmp.PKIBody;
 import org.bouncycastle.asn1.cmp.PKIMessage;
+import org.bouncycastle.asn1.nist.NISTObjectIdentifiers;
 import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.junit.Test;
@@ -93,6 +94,20 @@ public class TestIrWithPbmac1Protection
                             DERNull.INSTANCE),
                     new AlgorithmIdentifier(
                             PKCSObjectIdentifiers.id_hmacWithSHA1,
+                            DERNull.INSTANCE)},
+            {
+                    //
+                    new AlgorithmIdentifier(
+                            PKCSObjectIdentifiers.id_hmacWithSHA512,
+                            DERNull.INSTANCE),
+                    new AlgorithmIdentifier(
+                            NISTObjectIdentifiers.id_KmacWithSHAKE128,
+                            DERNull.INSTANCE)},
+            //
+            {new AlgorithmIdentifier(PKCSObjectIdentifiers.id_hmacWithSHA1,
+                    DERNull.INSTANCE),
+                    new AlgorithmIdentifier(
+                            NISTObjectIdentifiers.id_KmacWithSHAKE256,
                             DERNull.INSTANCE)}};
 
     @Parameters(name = "{index}: prf=>{0}, mac=>{1}")

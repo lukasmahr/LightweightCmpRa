@@ -21,8 +21,6 @@ package com.siemens.pki.lightweightcmpra.protection;
 import java.security.SecureRandom;
 import java.util.List;
 
-import javax.crypto.Mac;
-
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.DEROctetString;
@@ -33,6 +31,7 @@ import org.bouncycastle.asn1.x509.GeneralName;
 
 import com.siemens.pki.lightweightcmpra.cryptoservices.CmsEncryptorBase;
 import com.siemens.pki.lightweightcmpra.cryptoservices.PasswordEncryptor;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMac;
 
 /**
  * base class for MAC protection provider
@@ -56,7 +55,7 @@ public abstract class MacProtection implements ProtectionProvider {
 
     private AlgorithmIdentifier protectionAlg;
     private final DEROctetString username;
-    private Mac protectingMac;
+    private WrappedMac protectingMac;
     protected final char[] passwordAsCharArrays;
 
     protected MacProtection(final String userName, final String password) {
@@ -83,12 +82,10 @@ public abstract class MacProtection implements ProtectionProvider {
     }
 
     @Override
-    public DERBitString getProtectionFor(final ProtectedPart protectedPart)
-            throws Exception {
-        protectingMac.reset();
-        protectingMac.update(protectedPart.getEncoded(ASN1Encoding.DER));
-        final byte[] bytes = protectingMac.doFinal();
-        return new DERBitString(bytes);
+    public synchronized DERBitString getProtectionFor(
+            final ProtectedPart protectedPart) throws Exception {
+        return new DERBitString(protectingMac
+                .calculateMac(protectedPart.getEncoded(ASN1Encoding.DER)));
     }
 
     @Override
@@ -101,7 +98,7 @@ public abstract class MacProtection implements ProtectionProvider {
         return username;
     }
 
-    protected void setProtectingMac(final Mac protectingMac) {
+    protected void setProtectingMac(final WrappedMac protectingMac) {
         this.protectingMac = protectingMac;
     }
 

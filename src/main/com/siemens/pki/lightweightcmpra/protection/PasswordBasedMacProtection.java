@@ -33,6 +33,7 @@ import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 
 import com.siemens.pki.lightweightcmpra.config.xmlparser.MACCREDENTIAL;
 import com.siemens.pki.lightweightcmpra.cryptoservices.CertUtility;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMac;
 
 /**
  * a {@link ProtectionProvider} enforcing a CMP message with password based MAC
@@ -58,9 +59,8 @@ public class PasswordBasedMacProtection extends MacProtection {
      */
     public PasswordBasedMacProtection(final MACCREDENTIAL config)
             throws Exception {
-        this(config.getUsername(), config.getPassword(),
-                getDefaultSalt(), DEFAULT_ITERATION_COUNT,
-                DEFAULT_OWF_OID, DEFAULT_MAC_OID);
+        this(config.getUsername(), config.getPassword(), getDefaultSalt(),
+                DEFAULT_ITERATION_COUNT, DEFAULT_OWF_OID, DEFAULT_MAC_OID);
     }
 
     /**
@@ -79,10 +79,11 @@ public class PasswordBasedMacProtection extends MacProtection {
             final int iterationCount, final ASN1ObjectIdentifier owfOid,
             final ASN1ObjectIdentifier macOid) throws Exception {
         super(userName, password);
-        setProtectionAlg(new AlgorithmIdentifier(CMPObjectIdentifiers.passwordBasedMac,
-                new PBMParameter(protectionSalt,
-                        new AlgorithmIdentifier(owfOid), iterationCount,
-                        new AlgorithmIdentifier(macOid))));
+        setProtectionAlg(
+                new AlgorithmIdentifier(CMPObjectIdentifiers.passwordBasedMac,
+                        new PBMParameter(protectionSalt,
+                                new AlgorithmIdentifier(owfOid), iterationCount,
+                                new AlgorithmIdentifier(macOid))));
         final byte[] raSecret = password.getBytes(Charset.defaultCharset());
         byte[] calculatingBaseKey =
                 new byte[raSecret.length + protectionSalt.length];
@@ -100,7 +101,12 @@ public class PasswordBasedMacProtection extends MacProtection {
                 CertUtility.BOUNCY_CASTLE_PROVIDER);
         protectingMac
                 .init(new SecretKeySpec(calculatingBaseKey, macOid.getId()));
-        setProtectingMac(protectingMac);
+        final WrappedMac wrappedMac = in -> {
+            protectingMac.reset();
+            protectingMac.update(in);
+            return protectingMac.doFinal();
+        };
+        setProtectingMac(wrappedMac);
     }
 
 }

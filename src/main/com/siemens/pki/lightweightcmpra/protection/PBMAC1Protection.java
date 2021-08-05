@@ -20,11 +20,9 @@ package com.siemens.pki.lightweightcmpra.protection;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.JAXB;
 
 import org.bouncycastle.asn1.DERNull;
@@ -35,7 +33,8 @@ import org.bouncycastle.cms.PasswordRecipient;
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper;
 
 import com.siemens.pki.lightweightcmpra.config.xmlparser.MACCREDENTIAL;
-import com.siemens.pki.lightweightcmpra.cryptoservices.CertUtility;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMac;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMacFactory;
 import com.siemens.pki.lightweightcmpra.msgprocessing.NewCMPObjectIdentifiers;
 import com.siemens.pki.lightweightcmpra.msgprocessing.PBMAC1Params;
 
@@ -110,10 +109,8 @@ public class PBMAC1Protection extends MacProtection {
         final SecretKey key =
                 keyFact.generateSecret(new PBEKeySpec(passwordAsCharArrays,
                         salt, iterationCount, keyLength));
-        final String macId = messageAuthScheme.getAlgorithm().getId();
-        final Mac protectingMac =
-                Mac.getInstance(macId, CertUtility.BOUNCY_CASTLE_PROVIDER);
-        protectingMac.init(new SecretKeySpec(key.getEncoded(), macId));
+        final WrappedMac protectingMac = WrappedMacFactory
+                .createWrappedMac(messageAuthScheme, key.getEncoded());
         setProtectingMac(protectingMac);
     }
 

@@ -21,11 +21,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
 
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.cmp.PKIFailureInfo;
@@ -39,7 +37,8 @@ import org.bouncycastle.cms.PasswordRecipient;
 import org.bouncycastle.jcajce.util.DefaultJcaJceHelper;
 
 import com.siemens.pki.lightweightcmpra.config.xmlparser.MACCREDENTIAL;
-import com.siemens.pki.lightweightcmpra.cryptoservices.CertUtility;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMac;
+import com.siemens.pki.lightweightcmpra.cryptoservices.WrappedMacFactory;
 import com.siemens.pki.lightweightcmpra.msgprocessing.PBMAC1Params;
 
 /**
@@ -101,16 +100,13 @@ public class PBMAC1ProtectionValidator extends MacValidator {
                     new PBEKeySpec(passwordAsCharArray, params.getSalt(),
                             params.getIterationCount().intValue(),
                             params.getKeyLength().intValue()));
-            final String macId =
-                    pbmac1Params.getMessageAuthScheme().getAlgorithm().getId();
-            final Mac mac =
-                    Mac.getInstance(macId, CertUtility.BOUNCY_CASTLE_PROVIDER);
-            mac.init(new SecretKeySpec(key.getEncoded(), macId));
+            final WrappedMac mac = WrappedMacFactory.createWrappedMac(
+                    pbmac1Params.getMessageAuthScheme(), key.getEncoded());
             final byte[] protectedBytes =
                     new ProtectedPart(header, message.getBody())
                             .getEncoded(ASN1Encoding.DER);
-            mac.update(protectedBytes);
-            final byte[] recalculatedProtection = mac.doFinal();
+            final byte[] recalculatedProtection =
+                    mac.calculateMac(protectedBytes);
             final byte[] protectionBytes = message.getProtection().getBytes();
             if (!Arrays.equals(recalculatedProtection, protectionBytes)) {
                 throw new CmpValidationException(getInterfaceName(),
