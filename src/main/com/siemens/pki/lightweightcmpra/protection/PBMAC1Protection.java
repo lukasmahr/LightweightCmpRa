@@ -78,9 +78,8 @@ public class PBMAC1Protection extends MacProtection {
      *             in the case of an internal error
      */
     public PBMAC1Protection(final MACCREDENTIAL config) throws Exception {
-        this(config.getUsername(), config.getPassword(),
-                getDefaultSalt(), DEFAULT_ITERATION_COUNT, 256,
-                DEFAULT_PRF, DEFAULT_MAC);
+        this(config.getUsername(), config.getPassword(), getDefaultSalt(),
+                DEFAULT_ITERATION_COUNT, 256, DEFAULT_PRF, DEFAULT_MAC);
     }
 
     /**
