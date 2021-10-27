@@ -316,6 +316,11 @@ storage of enrolled certificates</xs:documentation>
 					the revocation status cannot be determined.</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
+		<xs:attribute name="EnableKeyUsageCheck" type="xs:boolean" default="true">
+			<xs:annotation>
+				<xs:documentation>Enable or disable check of key usage digitalSignature in certificate.</xs:documentation>
+			</xs:annotation>
+		</xs:attribute>
 	</xs:complexType>
 	<xs:complexType name="CMP_CREDENTIALS">
 		<xs:annotation>

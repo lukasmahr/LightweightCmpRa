@@ -198,6 +198,7 @@ The **Trust Credentials Type** has optional and mandatory attributes described b
   network error.
 - If the optional boolean attribute **EnableKeyUsageCheck** is set to *false* the check of key usage digitalSignature in the end certificate is disabled.
 
+
 ## The CrlFile entity
 The **CrlFile entity** describes the location of a CRL file used for revocation checking. It has the mandatory attribute **path** holding the relative or absolute name of a file containing the CRL. 
 

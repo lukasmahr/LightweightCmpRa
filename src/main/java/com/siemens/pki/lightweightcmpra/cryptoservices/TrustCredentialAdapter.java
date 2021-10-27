@@ -27,6 +27,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.Security;
 import java.security.cert.CRLException;
 import java.security.cert.CertPathBuilder;
@@ -76,6 +77,11 @@ import com.siemens.pki.lightweightcmpra.util.RegexCertMatcher;
 
 @SuppressWarnings("restriction")
 public class TrustCredentialAdapter {
+
+    // key usages
+    private static final int KU_DIGITAL_SIGNATURE = 0;
+
+    private static final int KU_CERT_SIGN = 5;
 
     private static final Logger LOGGER =
             LoggerFactory.getLogger(TrustCredentialAdapter.class);
@@ -298,37 +304,33 @@ public class TrustCredentialAdapter {
 
     /**
      * Attempts to build a certification chain for given certificate and to
-     * verify
-     * it. Relies on a set of root CA certificates (trust anchors) and a set of
-     * intermediate certificates (to be used as part of the chain).
+     * verify it. Relies on a set of root CA
+     * certificates (trust anchors) and a set of intermediate certificates (to
+     * be used as part of the chain).
      *
      * @param cert
      *            certificate for validation
-     * @param trustedRootCerts
-     *            set of trusted root CA certificates
      * @param additionalIntermediateCerts
      *            set of intermediate certificates, must also include the
-     *            certificate for validation
-     * @param certVerifyConfig
-     *            configuration for the certificate verification
+     *            certificate for
+     *            validation
      *
      * @return the validated chain without trust anchor but with cert
      *
      * @throws PkiCertVerificationException
      *             if the certificate path could not be build and validated
-     *             because
-     *             of an missing algorithm, provider or a certificate/CRL could
-     *             be read
-     * @throws Exception
+     *             because of an missing
+     *             algorithm, provider or a certificate/CRL could be read
      * @throws NoSuchAlgorithmException
      * @throws CertificateException
+     * @throws NoSuchProviderException
      */
     @SuppressWarnings({"unchecked"})
-    synchronized public List<? extends X509Certificate> validateCertAgainstTrust(
+    public synchronized List<? extends X509Certificate> validateCertAgainstTrust(
             final X509Certificate cert,
             final List<X509Certificate> additionalIntermediateCerts)
             throws PkiCertVerificationException, CertificateException,
-            NoSuchAlgorithmException, Exception {
+            NoSuchAlgorithmException, NoSuchProviderException {
         if (!peerMatcher.match(cert)) {
             return null;
         }
@@ -512,7 +514,7 @@ public class TrustCredentialAdapter {
             final X509Certificate rootCert =
                     result.getTrustAnchor().getTrustedCert();
             final boolean[] rootKeyUsage = rootCert.getKeyUsage();
-            if (rootKeyUsage != null && !rootKeyUsage[5]) {
+            if (rootKeyUsage != null && !rootKeyUsage[KU_CERT_SIGN]) {
                 throw new PkiCertVerificationException(
                         "keyCertSign not set for root certificate "
                                 + rootCert.getSubjectX500Principal());
@@ -523,16 +525,17 @@ public class TrustCredentialAdapter {
                 final X509Certificate x509Certificate =
                         (X509Certificate) certInPath;
                 final boolean[] keyUsage = x509Certificate.getKeyUsage();
-                if (keyUsage != null) {
+                if (keyUsage != null
+                        && certVerifyConfig.isEnableKeyUsageCheck()) {
                     if (x509Certificate.equals(cert)) {
-                        if (!keyUsage[0]) {
+                        if (!keyUsage[KU_DIGITAL_SIGNATURE]) {
                             throw new PkiCertVerificationException(
                                     "digitalSignature not set for certificate "
                                             + x509Certificate
                                                     .getSubjectX500Principal());
                         }
                     } else {
-                        if (!keyUsage[5]) {
+                        if (!keyUsage[KU_CERT_SIGN]) {
                             throw new PkiCertVerificationException(
                                     "keyCertSign not set for certificate "
                                             + x509Certificate
@@ -572,5 +575,4 @@ public class TrustCredentialAdapter {
                     "Exception while building certificate path", ex);
         }
     }
-
 }
