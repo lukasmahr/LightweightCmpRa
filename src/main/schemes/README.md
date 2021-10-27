@@ -104,6 +104,7 @@ It contains
 - **one** server configuration describing the underlaying transport mechanism used to communicate with the next downstream RA or EE. The server configuration can be
     - **one** [CmpHttpServer entry](#the-cmphttpserver-entry) or
     - **one** [CoapServer entry](#the-coapserver-entry) or
+    - **one** [MqttServer entry](#the-mqttserver-entry) or
     - **one** [MessageHandler entry](#the-messagehandler-entry) or
     - **one** [OfflineFileServer entry](#the-offlinefileserver-entry).
 
@@ -118,6 +119,14 @@ The **CmpHttpServer entity** has the mandatory attribute **ServingUrl**. The **S
 ## The CoapServer entry
 The **CoapServer entry** describes a CoAP endpoint as described in [RFC 7252](https://www.rfc-editor.org/rfc/rfc7252.txt).
 It has one mandatory attribute **path**. The **path** attribute describes the CoAP path to be served.
+
+## The MqttServer entry
+The **MqttServer entry** describes an interface to a MQTT message broker. It has four mandatory attributes:
+- the attribute **MessageBrokerUrl** describes the URL of the MQTT message broker,
+- the attribute **MessageQueueName** describes the MQTT message queue used for sending and receiving messages,
+- the attribute **User** describes the user name used for authentication and
+- the attribute **Password** describes the password used for authentication.
+
 
 ## The MessageHandler entry
 The **MessageHandler entry** sets up an internal message handler. This is an extension point to attach further transport protocols.

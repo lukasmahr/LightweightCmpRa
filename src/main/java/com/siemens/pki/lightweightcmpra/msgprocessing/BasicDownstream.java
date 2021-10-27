@@ -36,6 +36,7 @@ import com.siemens.pki.lightweightcmpra.msgvalidation.InputValidator;
 import com.siemens.pki.lightweightcmpra.server.CmpCoapServer;
 import com.siemens.pki.lightweightcmpra.server.CmpHttpServer;
 import com.siemens.pki.lightweightcmpra.server.InternalMessageHandlerStub;
+import com.siemens.pki.lightweightcmpra.server.MqttServer;
 import com.siemens.pki.lightweightcmpra.server.OfflineFileServer;
 import com.siemens.pki.lightweightcmpra.util.MsgProcessingAdapter;
 
@@ -102,6 +103,11 @@ public abstract class BasicDownstream {
                 config.getOfflineFileServer();
         if (offlineFileServer != null) {
             new OfflineFileServer(offlineFileServer, nestingFunction);
+        }
+        if (config.getMqttServer() != null) {
+            new MqttServer(config.getMqttServer(),
+                    MsgProcessingAdapter.adaptMsgHandlerToByteToByteFunction(
+                            INTERFACE_NAME, nestingFunction));
         }
     }
 

@@ -53,27 +53,30 @@ public class TestUtils {
      */
     public static Function<PKIMessage, PKIMessage> createCmpClient(
             final String serverPath) throws Exception {
-        if (serverPath.toLowerCase().startsWith("http")) {
+        final String lowerCaseServerPath = serverPath.toLowerCase();
+        if (lowerCaseServerPath.startsWith("http")) {
             return MsgProcessingAdapter
                     .adaptByteToInputStreamFunctionToMsgHandler(
-                            "HTTP_test_client",
+                            "HTTP(S) test client",
                             new HttpSession(new URL(serverPath)));
-        } else {
-            if (serverPath.toLowerCase().startsWith("coap")) {
-                final CoapClient client = new CoapClient(serverPath);
-                return MsgProcessingAdapter.adaptByteToByteFunctionToMsgHandler(
-                        "COAP_test_client", in -> {
-                            try {
-                                return client.post(in,
-                                        MediaTypeRegistry.APPLICATION_OCTET_STREAM)
-                                        .getPayload();
-                            } catch (ConnectorException | IOException e) {
-                                throw new CmpProcessingException(
-                                        "COAP test client", e);
-                            }
-                        });
-            }
+        } else if (lowerCaseServerPath.startsWith("coap")) {
+            final CoapClient client = new CoapClient(serverPath);
+            return MsgProcessingAdapter.adaptByteToByteFunctionToMsgHandler(
+                    "COAP test client", in -> {
+                        try {
+                            return client.post(in,
+                                    MediaTypeRegistry.APPLICATION_OCTET_STREAM)
+                                    .getPayload();
+                        } catch (ConnectorException | IOException e) {
+                            throw new CmpProcessingException(
+                                    "test client to " + serverPath, e);
+                        }
+                    });
+        } else if (lowerCaseServerPath.startsWith("tcp")) {
+            return MsgProcessingAdapter.adaptByteToByteFunctionToMsgHandler(
+                    "MQTT test client", new MqttTestClient(serverPath));
         }
+
         throw new IllegalArgumentException(
                 "invalid server path: " + serverPath);
     }

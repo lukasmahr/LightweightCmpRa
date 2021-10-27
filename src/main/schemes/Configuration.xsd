@@ -548,6 +548,15 @@ storage of enrolled certificates</xs:documentation>
 			</xs:annotation>
 		</xs:attribute>
 	</xs:complexType>
+	<xs:complexType name="MQTT_SERVER_CONFIGURATION">
+		<xs:annotation>
+			<xs:documentation>Configuration for a MQTT server</xs:documentation>
+		</xs:annotation>
+		<xs:attribute name="MessageBrokerUrl" type="xs:string" use="required"/>
+		<xs:attribute name="MessageQueueName" type="xs:string" use="required"/>
+		<xs:attribute name="User" type="xs:string" use="required"/>
+		<xs:attribute name="Password" type="xs:string" use="required"/>
+	</xs:complexType>
 	<xs:complexType name="MESSAGE_HANDLER_CONFIGURATION">
 		<xs:annotation>
 			<xs:documentation>Configuration for an internal message handler stub
@@ -598,6 +607,7 @@ storage of enrolled certificates</xs:documentation>
 					<xs:documentation>CoAP endpoint, see [RFC 7252]</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="MqttServer" type="MQTT_SERVER_CONFIGURATION" minOccurs="0"/>
 			<xs:element name="MessageHandler" type="MESSAGE_HANDLER_CONFIGURATION" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Set up an nternal message handler
