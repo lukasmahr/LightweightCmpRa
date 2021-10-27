@@ -95,11 +95,12 @@ The **EnrollmentCredentials entity** specifies the credentials used to validate 
 [Trust Credentials Type](#the-trust-credentials-type) can be used here.
 
 ## The Downstream entity
-The **Downstream entity** describes interfaces towards the EE sharing the same CmpCredentials.
+The **Downstream entity** describes interfaces towards the EE sharing the same CmpCredentials and the same Inventory.
 It contains
 - **one** [CmpCredentials entity](#the-cmpcredentials-entity) describing the protection configuration used for outgoing requests and incoming responses,
 - **one optional** [NestedEndpointCredentials entity](#the-nestedendpointcredentials-entity) if incoming nested messages should be unwrapped,
 - **one optional** [CentralKeyGeneration entity](#the-centralkeygeneration-entry) if central key generation should be supported,
+- **one optional** [Inventory entry](#the-inventory-entry) if an external inventory should be accessed and 
 - **one** server configuration describing the underlaying transport mechanism used to communicate with the next downstream RA or EE. The server configuration can be
     - **one** [CmpHttpServer entry](#the-cmphttpserver-entry) or
     - **one** [CoapServer entry](#the-coapserver-entry) or
@@ -132,6 +133,11 @@ If the **CentralKeyGeneration entry** is present central key generation is suppo
 It has two mandatory attributes needed to describe own credentials used for key transport or encryption.
 - The attribute **KeyStorePath** holds a relative or absolute filename of a password protected Java Keystore file (JKS) or PKCS#12 file containing the own private key and certificate. 
 - The attribute **KeyStorePassword** contains a plain-text password required to open the Keystore.
+
+## The Inventory entry
+The **Inventory entry** describes a REST client interface for end entitiy instance validation.
+If HTTP over TLS (HTTPS) is used this entity must contain **one** [TlsConfig entity](#the-tlsconfig-entity).
+The **Inventory entity** has the mandatory attribute **ServerUrl**. The **ServerUrl** specifies the address of an HTTP or HTTPs endpoint of the REST server, e.g. *https://inventory.domain.com/path/to/rest/endpoint* . 
 
 ## The CmpHttpClient entity
 

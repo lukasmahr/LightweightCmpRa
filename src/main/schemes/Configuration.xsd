@@ -623,6 +623,11 @@ storage of enrolled certificates</xs:documentation>
 					<xs:attributeGroup ref="SIGN_CREDENTIALS"/>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="Inventory" type="HTTP_CLIENT_CONFIGURATION" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>REST client interface for end entitiy instance validation </xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:all>
 	</xs:complexType>
 	<xs:simpleType name="OID">

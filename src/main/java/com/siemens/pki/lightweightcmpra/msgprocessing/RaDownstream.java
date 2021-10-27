@@ -60,6 +60,7 @@ import com.siemens.pki.lightweightcmpra.cryptoservices.CmsEncryptorBase;
 import com.siemens.pki.lightweightcmpra.cryptoservices.DataSigner;
 import com.siemens.pki.lightweightcmpra.cryptoservices.KeyPairGeneratorFactory;
 import com.siemens.pki.lightweightcmpra.cryptoservices.TrustCredentialAdapter;
+import com.siemens.pki.lightweightcmpra.inventory.restclient.InventoryRestClient;
 import com.siemens.pki.lightweightcmpra.msggeneration.PkiMessageGenerator;
 import com.siemens.pki.lightweightcmpra.msgvalidation.BaseCmpException;
 import com.siemens.pki.lightweightcmpra.msgvalidation.CmpEnrollmentException;
@@ -133,8 +134,11 @@ class RaDownstream extends BasicDownstream {
         enrollmentValidator = new TrustCredentialAdapter(enrollmentCredentials);
         this.upstreamHandler = upstreamHandler;
         this.enforceRaVerified = enforceRaVerified;
-        // TODO init inventory stuff here
-        inventory = InventoryIF.DummyInventory;
+        if (config.getInventory() != null) {
+            inventory = new InventoryRestClient(config.getInventory());
+        } else {
+            inventory = InventoryIF.DUMMY_INVENTORY;
+        }
         keySigner = outputProtector.getKeySigner();
         if (keySigner == null && config.getCentralKeyGeneration() != null) {
             keySigner = new DataSigner(
@@ -367,7 +371,7 @@ class RaDownstream extends BasicDownstream {
                                 enrollmentValidator.validateCertAgainstTrust(
                                         enrolledCertificateAsX509,
                                         extraCertsAsX509);
-                        inventory.storeCerificate(enrolledCertificateAsX509,
+                        inventory.storeCertificate(enrolledCertificateAsX509,
                                 responseFromUpstream);
                         issuingChain =
                                 new ArrayList<>(issuingChainAsX509.size());

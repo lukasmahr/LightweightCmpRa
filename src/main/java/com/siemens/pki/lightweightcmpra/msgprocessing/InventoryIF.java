@@ -21,7 +21,7 @@ import java.security.cert.X509Certificate;
 
 import org.bouncycastle.asn1.cmp.PKIMessage;
 
-import com.siemens.pki.lightweightcmpra.msgvalidation.CmpEnrollmentException;
+import com.siemens.pki.lightweightcmpra.msgvalidation.CmpProcessingException;
 
 /**
  *
@@ -30,7 +30,10 @@ import com.siemens.pki.lightweightcmpra.msgvalidation.CmpEnrollmentException;
  */
 public interface InventoryIF {
 
-    InventoryIF DummyInventory = new InventoryIF() {
+    /**
+     * a non checking dummy implementation
+     */
+    InventoryIF DUMMY_INVENTORY = new InventoryIF() {
 
         @Override
         public PKIMessage checkAndModifyRequest(final PKIMessage request) {
@@ -38,7 +41,7 @@ public interface InventoryIF {
         }
 
         @Override
-        public void storeCerificate(final X509Certificate enrolledCertificate,
+        public void storeCertificate(final X509Certificate enrolledCertificate,
                 final PKIMessage responseFromUpstream) {
         }
 
@@ -50,11 +53,14 @@ public interface InventoryIF {
      * @param request
      *            request to analyze and maybe modify
      * @return modified request or unchanged request
-     * @throws CmpEnrollmentException
+     * @throws Exception
+     *             in case of general error
+     * @throws CmpProcessingException
      *             if request is not acceptable and should be answered with an
      *             CMP error
      */
-    PKIMessage checkAndModifyRequest(PKIMessage request);
+    PKIMessage checkAndModifyRequest(PKIMessage request)
+            throws CmpProcessingException;
 
     /**
      * process and store enrolled certificate
@@ -64,7 +70,7 @@ public interface InventoryIF {
      * @param responseFromUpstream
      *            whole response
      */
-    void storeCerificate(X509Certificate enrolledCertificate,
+    void storeCertificate(X509Certificate enrolledCertificate,
             PKIMessage responseFromUpstream);
 
 }
